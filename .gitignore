@@ -4,3 +4,7 @@ models/
 demo/
 tools/assets/tmp/
 store/listing.md
+web-ext-artifacts/
+.env
+*.xpi
+.amo-upload-uuid

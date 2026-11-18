@@ -7,7 +7,8 @@
   "chrome_url_overrides": { "newtab": "newtab.html" },
   "browser_specific_settings": {
     "gecko": {
-      "id": "gracedes@bu.edu"
+      "id": "kdesrochers26@gmail.com",
+      "data_collection_permissions": { "required": ["searchTerms"] }
     }
   },
   "options_ui": { "page": "options.html", "open_in_tab": true },
