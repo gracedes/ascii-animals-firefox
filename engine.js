@@ -33,6 +33,12 @@ function W(t, e, s) {
     (i >>> 0) / 4294967296
   );
 }
+
+// Firefox canvas limits (gfx/platform/2d/...): max area 2^24 px, per-dimension texture size 32767.
+// Chrome allows far larger (32767 per side, ~188M px area), so this clamp is a no-op there.
+const FW_MAX_PIX = 16e6;   // comfortably < 2^24 (16,777,216)
+const FW_MAX_SIDE = 32000; // comfortably < 32,767
+
 const gt = {
     density: 1,
     corner: !1,
@@ -2895,7 +2901,9 @@ class ti {
   resize() {
     const e = this.canvas.getBoundingClientRect();
     if (e.width < 1 || e.height < 1) return;
-    const s = Math.min(window.devicePixelRatio || 1, 2);
+    let s = Math.min(window.devicePixelRatio || 1, 2);
+    // clamp so the canvas raster stays within Firefox's area + dimension limits
+    s = Math.max(1, Math.min(s, Math.sqrt(FW_MAX_PIX / (e.width * e.height))));
     this.renderer.resize(e.width, e.height, s),
       this.flock.resize(e.width, e.height),
       this.reducedMotion.matches && this.drawStill();
