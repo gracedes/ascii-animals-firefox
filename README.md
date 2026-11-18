@@ -6,31 +6,22 @@ Swarms of animals drawn from keyboard characters. One folder, one engine (`engin
 
 ## Install
 
-Download the files from the [latest release](https://github.com/bothuany/ascii-animals/releases/latest).
+Download the files from the [latest release](https://github.com/gracedes/ascii-animals-firefox/releases/latest).
 
-**Chrome, Edge or Brave (new tab page)**
+1. Open `about:addons`.
+2. Click the gear icon (top right) and choose **Install Add-on From File…**
+3. Pick the `.xpi`.
+4. Open a new tab.
 
-1. Download `ascii-animals-extension.zip` and unzip it somewhere you will keep it (the browser loads it from that folder).
-2. Open `chrome://extensions` (Edge: `edge://extensions`) and turn on **Developer mode**.
-3. Click **Load unpacked** and pick the unzipped folder.
-4. Open a new tab. If the browser asks whether to keep the new tab page, choose **Keep it**.
-5. Click the extension's toolbar icon to change the animal and the look.
+To update, download the new `.xpi`, install it again and choose **Replace** when asked. The settings, toggles and background are stored under the add-on's identity, so a Replace keeps them all.
 
-To update, download the new zip, replace the folder's contents and press the reload button on the extension's card.
+**From source (unpacked, for testing)**
 
-Chrome adds a footer bar with the extension's name to any new tab page an extension replaces. The extension cannot remove it, but you can: click **Customize Chrome** in that bar, find **Footer** in the side panel and turn off showing the footer on the New Tab page.
+1. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on…**
+2. Pick this folder (`manifest.json`).
+3. Open a new tab and click the search box (or press Tab) before typing; Firefox gives the address bar focus first on a new tab.
 
-**Wallpaper Engine (desktop wallpaper)**
-
-1. Download `ascii-animals-wallpaper.zip` and unzip it.
-2. In Wallpaper Engine open the **Wallpaper Editor**, choose **Create Wallpaper** and pick `wallpaper.html` from the unzipped folder.
-3. The animal and the look are in the wallpaper's properties panel.
-
-## Chrome new tab (from this folder)
-
-1. Open `chrome://extensions`, turn on **Developer mode**.
-2. **Load unpacked** and pick this folder.
-3. Open a new tab. Chrome gives the address bar focus first on a new tab, so click the search box (or press Tab) before typing.
+A temporary add-on is gone at the next restart, and its settings only persist because the manifest carries an explicit ID in `browser_specific_settings`.
 
 ### Settings
 
@@ -46,18 +37,13 @@ Settings saved by older versions (flat relative tweaks such as `density` or `hue
 
 ### Search box
 
-- Enter searches with Chrome's default search engine (`chrome.search`); something that looks like a URL is opened directly.
+- Enter searches with the browser's default search engine; something that looks like a URL is opened directly.
 - **Suggestions** appear while typing (arrow keys move, Enter runs the highlighted one or the typed text, Escape closes). They come from `https://suggestqueries.google.com/complete/search?client=chrome&q=...`: **the text in the box is sent to Google as you type** (after a 150 ms pause, no cookies). This is the extension's only host permission. Failures are silent.
 - **Recent searches** (up to 50, stored locally in `chrome.storage.local`, never synced) show when the box is empty and focused, and first among the suggestions while typing; each has a remove button.
 - **Voice search** (microphone button, shown when the browser supports speech recognition): words appear as you speak and the final result is searched. Chrome's speech recognition sends the audio to Google.
 - **Search by image** (lens button): opens Google's image upload dialog (`https://www.google.com/?olud`), or, if the box holds an image URL (`.png .jpg .jpeg .webp .gif`), searches that image with Google Lens.
 
 Permissions: `storage` (settings and recents), `search` (default search engine), host access to `suggestqueries.google.com` (suggestions).
-
-## Wallpaper Engine
-
-1. In the Wallpaper Editor choose **Create Wallpaper** and drop `wallpaper.html` onto it (or pick it with the file dialog). Wallpaper Engine **copies** the folder into `...\projects\myprojects\`. After editing `engine.js` here, re-import (or copy the file into that folder).
-2. Select the wallpaper in the **Installed** tab. The properties (defined in `project.json`) are a shorter set than the extension's settings: the full per-animal tweak panel is in the browser extension. The wallpaper has **Animal**, **Background**, and these, which act on the selected animal and are relative to its original defaults (1 = the original look): **Density**, **Speed**, **Size**, **Trail**, **Grid** and **ASCII detail** are multipliers (the result is clamped to the original's range; an animal whose default is 0, like the crane's trail, stays at 0), and **Hue shift** is in degrees. Wallpaper Engine's FPS limit is respected.
 
 ## How it works
 
@@ -78,14 +64,11 @@ Open `wallpaper.html`, `newtab.html` or `options.html` from a local static serve
 
 ## Publishing
 
-    node tools/build.js
+Sign from a clean directory that holds only the build files (the flat Firefox directory, with any symlinks already resolved to real copies):
 
-This clears and rebuilds `dist/` and fails if a required file (manifest, icons, `preview.gif`, ...) is missing or an HTML reference does not resolve:
+    web-ext sign --channel=unlisted --api-key=… --api-secret=…
 
-- `dist/ascii-animals-extension.zip` (and the unpacked `dist/extension/`): upload this to the Chrome Web Store.
-- `dist/wallpaper/`: import this folder (not the project folder) into Wallpaper Engine before sharing to the Workshop, so the demo video and extension files are not uploaded with it.
-
-Store text, permission justifications, data-usage answers and the checklist of manual steps are in `store/listing.md`; the privacy policy to host at a public URL is `PRIVACY.md`.
+The signed `.xpi` lands in `web-ext-artifacts/`. The manifest declares `data_collection_permissions: { "required": ["searchTerms"] }` for the suggestions endpoint, as new AMO submissions require, so keep that key. For each release: bump `version`, sign again, and put the `.xpi` on a GitHub release. Installing the newer file over the older (Replace) keeps the identity and all saved settings.
 
 ## Check
 
