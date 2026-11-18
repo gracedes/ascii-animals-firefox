@@ -10,7 +10,7 @@
       "id": "gracedes@bu.edu"
     }
   },
-  "options_ui": { "page": "options.html", "open_in_tab": false },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
   "action": {
     "default_popup": "options.html",
     "default_title": "ASCII Animals settings",

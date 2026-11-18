@@ -86,7 +86,7 @@ A.ANIMALS.forEach((id, n) => {
 assert.deepStrictEqual(A.GLASS.map((g) => [g.key, g.min, g.max, g.step, g.def]),
   [['blur', 0, 30, 0.5, 3.5], ['refraction', 0, 150, 1, 40], ['ripple', 0.001, 0.04, 0.001, 0.007], ['tint', 0, 3, 0.05, 0], ['edge', 0, 2, 0.05, 0.55], ['radius', 0, 48, 1, 24], ['width', 320, 960, 10, 720]]);
 assert.deepStrictEqual(A.BACKGROUND, { key: 'background', label: 'Background', group: 'Look', type: 'range', min: 0, max: 1, step: 0.01, def: 0 });
-assert.deepStrictEqual(A.DEFAULTS, { animal: 'butterflies', name: '', background: 0, tuning: {}, glass: { blur: 3.5, refraction: 40, ripple: 0.007, tint: 0, edge: 0.55, radius: 24, width: 720 } });
+assert.deepStrictEqual(A.DEFAULTS, { animal: 'butterflies', name: '', background: 0, tuning: {}, glass: { blur: 3.5, refraction: 40, ripple: 0.007, tint: 0, edge: 0.55, radius: 24, width: 720 }, ui: { avatar: true, greeting: true, mic: true, lens: true }  });
 
 // ---------- normalize ----------
 const D = A.normalize();
@@ -123,7 +123,7 @@ assert.strictEqual(A.normalize({ name: 'x'.repeat(100) }).name.length, 40);
 assert.strictEqual(A.normalize({ name: null }).name, '');
 // unknown keys are dropped, at every level; a tweak another animal has (or one this animal hides) is not this animal's
 assert.deepStrictEqual(A.normalize({ animal: 'koi', bogus: 1, tuning: { koi: { speed: 2, bogus: 3, glide: 1 }, unicorn: { speed: 2 }, frogs: { grip: 1, hop: 2 } }, glass: { blur: 9, bogus: 1 } }),
-  { animal: 'koi', name: '', background: 0, tuning: { koi: { speed: 2 }, frogs: { hop: 2 } }, glass: Object.assign({}, A.DEFAULTS.glass, { blur: 9 }) });
+  { animal: 'koi', name: '', background: 0, tuning: { koi: { speed: 2 }, frogs: { hop: 2 } }, glass: Object.assign({}, A.DEFAULTS.glass, { blur: 9 }), ui: A.DEFAULTS.ui });
 // tuning keeps the other animals' values (each animal remembers its own)
 assert.deepStrictEqual(A.normalize({ animal: 'crabs', tuning: { koi: { speed: 2 }, crabs: { burst: 2 } } }).tuning, { koi: { speed: 2 }, crabs: { burst: 2 } });
 // settings of the earlier versions: flat, relative tweaks and flat glass keys. The animal (mapped), name, background and glass are
@@ -131,7 +131,7 @@ assert.deepStrictEqual(A.normalize({ animal: 'crabs', tuning: { koi: { speed: 2 
 {
   const old = { animal: 'dragonfly', name: ' Sam ', density: 3, corner: true, direction: 10, speed: 2, size: 2, hold: 1, flutter: 1, hue: 90, shimmer: 1, trail: 0, fade: 0.2, grid: 2, detail: 2, count: 30,
     background: 0.4, blur: 10, refraction: 100, ripple: 0.02, tint: 1, edge: 1, radius: 10, width: 500 };
-  assert.deepStrictEqual(A.normalize(old), { animal: 'dragonflies', name: 'Sam', background: 0.4, tuning: {}, glass: { blur: 10, refraction: 100, ripple: 0.02, tint: 1, edge: 1, radius: 10, width: 500 } });
+  assert.deepStrictEqual(A.normalize(old), { animal: 'dragonflies', name: 'Sam', background: 0.4, tuning: {}, glass: { blur: 10, refraction: 100, ripple: 0.02, tint: 1, edge: 1, radius: 10, width: 500 }, ui: A.DEFAULTS.ui });
   assert.deepStrictEqual(A.normalize(Object.assign({}, old, { glass: { blur: 2 } })).glass, Object.assign({}, A.normalize(old).glass, { blur: 2 })); // the new glass object wins over a flat key
   assert.deepStrictEqual(A.normalize({ animal: 'bird' }), Object.assign({}, A.DEFAULTS, { animal: 'cranes' }));
 }

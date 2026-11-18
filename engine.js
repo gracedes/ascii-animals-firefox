@@ -3013,7 +3013,14 @@ const GLASS = [
 ].map(([key, label, min, max, step, def]) => ({ key, label, group: "Chat glass", type: "range", min, max, step, def }));
 // Ours: the tone of the page behind the animals.
 const BACKGROUND = { key: "background", label: "Background", group: "Look", type: "range", min: 0, max: 1, step: 0.01, def: 0 };
-const DEFAULTS = Object.freeze({ animal: ANIMALS[0], name: "", background: 0, tuning: {}, glass: Object.fromEntries(GLASS.map((g) => [g.key, g.def])) });
+// which elements of the new tab page are shown (the animals and the search box are always there).
+const UI = [
+  ["avatar", "Avatar"],
+  ["greeting", "Greeting"],
+  ["mic", "Voice search button", "Shown only in browsers with speech recognition"],
+  ["lens", "Image search button"],
+].map(([key, label, hint]) => ({ key, label, group: "New tab", type: "toggle", def: true, hint }));
+const DEFAULTS = Object.freeze({ animal: ANIMALS[0], name: "", background: 0, tuning: {}, glass: Object.fromEntries(GLASS.map((g) => [g.key, g.def])), ui: Object.fromEntries(UI.map((u) => [u.key, u.def])) });
 
 const num = (v) => (v == null || typeof v === "boolean" || (typeof v === "string" && !v.trim()) ? NaN : Number(v));
 const clampNum = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -3055,14 +3062,17 @@ function normalize(raw) {
     if (Object.keys(diff).length) tuning[id] = diff;
   }
   const g = r.glass && typeof r.glass === "object" ? r.glass : {};
-  const glass = {};
+  const glass = {}, ui = {};
   for (const t of GLASS) glass[t.key] = valueOf(t, g[t.key] !== undefined ? g[t.key] : r[t.key], t.def); // flat keys: older versions
+  const u = r.ui && typeof r.ui === "object" ? r.ui : {};
+  for (const t of UI) ui[t.key] = valueOf(t, u[t.key], t.def);
   return {
     animal: animalOf(r.animal) || DEFAULTS.animal, // 'random' and unknown values -> the default
     name: String(r.name == null ? "" : r.name).trim().slice(0, 40),
     background: valueOf(BACKGROUND, r.background, BACKGROUND.def),
     tuning,
     glass,
+    ui,
   };
 }
 // Preview in a plain browser: ?animal=koi&background=0.5&speed=1.4 (a string, URLSearchParams or object). Unlike stored settings,
@@ -3072,7 +3082,9 @@ function fromQuery(query) {
   const animal = animalOf(q.animal) || DEFAULTS.animal, tune = {}, glass = {};
   for (const t of TWEAKS[animal]) if (q[t.key] !== undefined) tune[t.key] = q[t.key];
   for (const t of GLASS) if (q[t.key] !== undefined) glass[t.key] = q[t.key];
-  return normalize({ animal, name: q.name, background: q.background, tuning: { [animal]: tune }, glass });
+  const ui = {};
+  for (const t of UI) if (q[t.key] !== undefined) ui[t.key] = q[t.key];
+  return normalize({ animal, name: q.name, background: q.background, tuning: { [animal]: tune }, glass, ui });
 }
 // Wallpaper Engine has a shorter, species-independent set: density, speed, size, trail, grid and detail are multipliers of the
 // selected species' original defaults (1 = the original look), hueshift is degrees. The result is clamped to the original range.
@@ -3093,7 +3105,7 @@ function fromWallpaperProps(props, base) {
     if (Number.isFinite(v) && t) tune[w.key] = clampNum(w.relative ? v * t.def : v, t.min, t.max);
   }
   const background = get("background");
-  return normalize({ animal, name: b.name, background: background === undefined ? b.background : background, tuning: Object.assign({}, b.tuning, { [animal]: tune }), glass: b.glass });
+  return normalize({ animal, name: b.name, background: background === undefined ? b.background : background, tuning: Object.assign({}, b.tuning, { [animal]: tune }), glass: b.glass, ui: b.ui });
 }
 // The background of these settings (any shape normalize accepts): { rgb, css, light, lum, theme, palette, adapt(rgb) }.
 const backgroundOf = (settings) => lookOf(normalize(settings).background);
@@ -3124,7 +3136,7 @@ function start(canvas, settings) {
 }
 
 const api = {
-  ANIMALS, LABELS, TWEAKS, GLASS, BACKGROUND, DEFAULTS, WALLPAPER, normalize, fromQuery, fromWallpaperProps, backgroundOf, lookOf, contrast, lumOf, start,
+  ANIMALS, LABELS, TWEAKS, GLASS, BACKGROUND, UI, DEFAULTS, WALLPAPER, normalize, fromQuery, fromWallpaperProps, backgroundOf, lookOf, contrast, lumOf, start,
   internals: { Flock: ge, Renderer: qs, App: ti, species: ct, palettes: Ee, capOf, CAP_CONTRAST }, // for tests
 };
 if (typeof module !== "undefined" && module.exports) module.exports = api;

@@ -7,7 +7,7 @@
   const NOTES = { refraction: 'approx.', ripple: 'approx.' };
   const decimals = (t) => (String(t.step).split('.')[1] || '').length;
   const fmt = (t, v) => Number(v).toFixed(decimals(t));
-  const KEYS = ['animal', 'name', 'background', 'tuning', 'glass']; // what is stored; any other key in storage is from an older version
+  const KEYS = ['animal', 'name', 'background', 'tuning', 'glass', 'ui']; // what is stored; any other key in storage is from an older version
 
   // One labelled control per tweak; each <label for> is bound to its input.
   function control(t, prefix) {
@@ -52,6 +52,7 @@
     $('tweaks').textContent = '';
     groups($('tweaks'), A.TWEAKS[animal], 't-');
   }
+  groups($('display'), A.UI, 'u-', () => 'Display');
   groups($('extras'), [A.BACKGROUND], 't-', () => 'Background');
   groups($('extras'), A.GLASS, 'g-', (g) => g + ' (new tab search panel)');
   for (const id of A.ANIMALS) $('animal').append(new Option(A.LABELS[id], id));
@@ -72,14 +73,16 @@
     for (const t of A.TWEAKS[shown]) setValue(t, $('t-' + t.key), t.key in own ? own[t.key] : t.def);
     setValue(A.BACKGROUND, $('t-background'), s.background);
     for (const t of A.GLASS) setValue(t, $('g-' + t.key), s.glass[t.key]);
+    for (const t of A.UI) setValue(t, $('u-' + t.key), s.ui[t.key]);
     updateDisabled();
   }
   let cur = A.normalize(); // the settings as last read or loaded: the other animals' tweaks are kept in it
   function read() { // the form as settings
-    const own = {}, glass = {};
+    const own = {}, glass = {}, ui = {};
     for (const t of A.TWEAKS[shown]) own[t.key] = getValue(t, $('t-' + t.key));
     for (const t of A.GLASS) glass[t.key] = $('g-' + t.key).value;
-    return A.normalize({ animal: $('animal').value, name: $('name').value, background: $('t-background').value, tuning: Object.assign({}, cur.tuning, { [shown]: own }), glass });
+    for (const t of A.UI) ui[t.key] = $('u-' + t.key).checked;
+    return A.normalize({ animal: $('animal').value, name: $('name').value, background: $('t-background').value, tuning: Object.assign({}, cur.tuning, { [shown]: own }), glass, ui });
   }
 
   const say = (text) => { $('status').textContent = text; };

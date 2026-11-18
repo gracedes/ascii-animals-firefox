@@ -6,6 +6,12 @@
 :root { color-scheme: dark; }
 html, body { margin: 0; height: 100%; background: var(--page, #06070c); color: var(--fg, #f2f3f7); font-family: Geist, ui-sans-serif, system-ui, sans-serif; }
 body.newtab { overflow: hidden; }
+[hidden] { display: none !important; }
+.row.tools:not(:has(.tool:not([hidden]))) { display: none; }
+#search:has(.row.tools[hidden]) {
+  min-height: 0;
+  padding-bottom: 18px;   /* overrides the default padding-bottom when buttons are visible */
+}
 
 #bg { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; font-family: "Geist Mono", ui-monospace, Menlo, monospace; } /* the engine draws its glyphs in this font */
 .defs { position: absolute; width: 0; height: 0; overflow: hidden; }

@@ -221,9 +221,9 @@
 
   // Voice search (webkitSpeechRecognition): interim words go into the box, the final result is searched.
   const SR = typeof window.webkitSpeechRecognition === 'function' ? window.webkitSpeechRecognition : window.SpeechRecognition;
+  const voiceOk = typeof SR === 'function';
   const mic = $('mic');
-  if (typeof SR === 'function') {
-    mic.hidden = false;
+  if (voiceOk) {
     let rec = null;
     const setListening = (on) => { mic.classList.toggle('listening', on); mic.setAttribute('aria-pressed', String(on)); if (on) msg.textContent = 'Listening...'; else if (msg.textContent === 'Listening...') msg.textContent = ''; };
     mic.addEventListener('click', () => {
@@ -248,12 +248,24 @@
   $('lens').addEventListener('click', () => { location.href = lensUrl(input.value); });
 
   // ---------- settings and the animals ----------
+  const avatarEl = document.querySelector('.avatar'), toolsRow = document.querySelector('.row.tools');
+  // Which page elements show (all on by default). The tools row disappears when both its
+  // buttons are hidden.
+  function applyUi(s) {
+    const u = s.ui || AsciiAnimals.normalize().ui;
+    avatarEl.hidden = !u.avatar;
+    $('greeting').hidden = !u.greeting;
+    mic.hidden = !voiceOk || !u.mic;
+    $('lens').hidden = !u.lens;
+    toolsRow.hidden = mic.hidden && $('lens').hidden;
+  }
   let engine = null;
   function boot(saved) {
     saved = saved || {};
     setName(saved.name);
     applyGlass(AsciiAnimals.normalize(saved).glass);
     applyLook(saved);
+    applyUi(saved);
     engine = AsciiAnimals.start($('bg'), saved);
   }
   if (store) {
@@ -270,6 +282,7 @@
       for (const k in changes) s[k] = changes[k].newValue;
       Object.assign(all, s);
       if ('name' in s) setName(s.name);
+      if ('ui' in s) applyUi(all);
       applyGlass(AsciiAnimals.normalize(all).glass);
       applyLook(all);
       engine.update(s);
