@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ASCII Animals",
-  "version": "1.1.0",
+  "version": "1.1.0.1",
   "description": "Turn your new tab into a living canvas of animals drawn from keyboard characters, with a built-in search box.",
   "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
   "chrome_url_overrides": { "newtab": "newtab.html" },
