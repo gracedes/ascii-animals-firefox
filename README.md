@@ -8,11 +8,11 @@ Swarms of animals drawn from keyboard characters. One folder, one engine (`engin
 
 Download the files from the [latest release](https://github.com/gracedes/ascii-animals-firefox/releases/latest).
 
-1. Right-click the `.xpi` on the release page and choose **"Save Link As…"**.
-2. Open `about:addons`.
+1. Right-click the `.xpi` on the release page and choose **"Save Link As…"**
+2. Open `about:addons`
 3. Click the gear icon (top right) and choose **Install Add-on From File…**
-4. Pick the `.xpi`.
-5. Open a new tab.
+4. Pick the `.xpi`
+5. Open a new tab
 
 To update, download the new `.xpi`, install it again and choose **Replace** when asked. The settings, toggles and background are stored under the add-on's identity, so a Replace keeps them all.
 
