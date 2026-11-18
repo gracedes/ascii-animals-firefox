@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASCII Animals</title>
+<style>
+  /* Geist Mono SemiBold, the animal glyphs: a local file, SIL OFL 1.1 (fonts/OFL.txt). */
+  @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/GeistMono-SemiBold.ttf) format('truetype'); }
+  html, body { margin: 0; height: 100%; background: rgb(6, 7, 12); overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; font-family: "Geist Mono", ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<script src="engine.js"></script>
+<script>
+  // Settings: the animal's original look < ?query overrides (for previewing without a host: ?animal=koi&background=0.5&speed=1.4)
+  // < Wallpaper Engine properties (relative to the animal's original defaults, see AsciiAnimals.WALLPAPER).
+  // The listener is assigned synchronously so no early property event is missed. Wallpaper Engine sends only the properties that
+  // changed, and a multiplier depends on the current animal, so every property seen so far is kept and the settings are rebuilt.
+  (function () {
+    var base = AsciiAnimals.fromQuery(location.search);
+    var seen = {}, engine = null, fps = 0;
+    var paint = function (s) { document.body.style.background = AsciiAnimals.backgroundOf(s).css; }; // behind the canvas
+    window.wallpaperPropertyListener = {
+      applyUserProperties: function (props) {
+        Object.assign(seen, props);
+        var s = AsciiAnimals.fromWallpaperProps(seen, base);
+        paint(s);
+        if (engine) engine.update(s);
+      },
+      // The user's FPS limit from the Wallpaper Engine performance settings (a number, e.g. 30).
+      applyGeneralProperties: function (props) {
+        if (props && props.fps) { fps = props.fps; if (engine) engine.setFps(fps); }
+      }
+    };
+    var s = AsciiAnimals.fromWallpaperProps(seen, base);
+    paint(s);
+    engine = AsciiAnimals.start(document.getElementById('bg'), s);
+    engine.setFps(fps);
+  })();
+</script>
+</body>
+</html>
